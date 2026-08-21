@@ -1,4 +1,18 @@
-.venv/
+# Local database
+*.db
+
+# Uploaded datasets
+uploads/
+
+# Python
 __pycache__/
 *.pyc
+
+# Virtual environment
+.venv/
+
+# Environment variables
 .env
+
+# VS Code
+.vscode/

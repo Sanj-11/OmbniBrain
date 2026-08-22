@@ -421,3 +421,20 @@ class FinalCleaningReport(BaseModel):
     string_cleaning: StringCleaningSummary
     numeric_cleaning: NumericCleaningSummary
     validation: ValidationSummary
+
+
+# Query Schemas (Asynchronous Query Processing – Part 1)
+class QueryRequest(BaseModel):
+    """Incoming natural-language or structured query against a dataset."""
+
+    text: str = Field(..., min_length=1)
+    dataset_id: Optional[int] = None
+
+
+class QueryResponse(BaseModel):
+    """Result of a query execution against a dataset."""
+
+    answer: str
+    dataset_id: Optional[int] = None
+    rows_analyzed: int = 0
+    columns_analyzed: int = 0

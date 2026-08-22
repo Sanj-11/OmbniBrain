@@ -7,6 +7,7 @@ import auth
 import datasets
 import profiling
 import cleaning
+import query
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
@@ -25,6 +26,7 @@ app.include_router(auth.router)
 app.include_router(datasets.router)
 app.include_router(profiling.router)
 app.include_router(cleaning.router)
+app.include_router(query.router)
 
 @app.get("/")
 async def read_root():

@@ -7,6 +7,10 @@ import pymupdf
 def extract_pdf(pdf_path: str) -> Dict[str, Any]:
     """
     Extract text, images, and page metadata from a PDF.
+
+    Embedded images are extracted when available. Each page is also
+    rendered to a PNG so vector-based charts and figures can be
+    represented as images for downstream vision/CLIP processing.
     """
 
     pdf_path = Path(pdf_path)
@@ -23,9 +27,9 @@ def extract_pdf(pdf_path: str) -> Dict[str, Any]:
         # Extract page text
         text = page.get_text("text").strip()
 
-        # Extract image metadata
         images = []
 
+        # Extract embedded raster images
         for image_number, image in enumerate(
             page.get_images(full=True),
             start=1
@@ -35,11 +39,29 @@ def extract_pdf(pdf_path: str) -> Dict[str, Any]:
 
             images.append({
                 "image_number": image_number,
+                "type": "embedded",
                 "xref": xref,
                 "extension": image_data["ext"],
                 "width": image_data["width"],
                 "height": image_data["height"],
             })
+
+        # Render the complete page as an image.
+        # This also captures vector-based charts and figures.
+        pixmap = page.get_pixmap(
+            matrix=pymupdf.Matrix(1.5, 1.5)
+        )
+
+        rendered_image = pixmap.tobytes("png")
+
+        images.append({
+            "image_number": len(images) + 1,
+            "type": "page_render",
+            "extension": "png",
+            "width": pixmap.width,
+            "height": pixmap.height,
+            "data": rendered_image,
+        })
 
         pages.append({
             "page": page_number,
@@ -61,7 +83,7 @@ def create_chunks(
     overlap: int = 100,
 ) -> List[Dict[str, Any]]:
     """
-    Split PDF text into overlapping chunks while
+    Split extracted PDF text into overlapping chunks while
     preserving document and page metadata.
     """
 

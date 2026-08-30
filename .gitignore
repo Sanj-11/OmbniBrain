@@ -16,3 +16,6 @@ __pycache__/
 
 # VS Code
 .vscode/
+# Generated FAISS vector store
+data/faiss.index
+data/faiss_metadata.json

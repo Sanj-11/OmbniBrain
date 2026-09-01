@@ -1,5 +1,6 @@
+
 from fastapi import FastAPI
-from database import engine, Base
+from database import engine
 from config import settings
 
 import models
@@ -15,23 +16,31 @@ models.Base.metadata.create_all(bind=engine)
 # Ensure upload directory exists
 settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# Create the FastAPI application instance
+# Create FastAPI application
 app = FastAPI(
     title="OmniBrain API",
     version="1.0.0",
     description="API for InsightIQ AI – Conversational BI & Predictive Analytics Platform"
 )
 
+# Register routers
 app.include_router(auth.router)
 app.include_router(datasets.router)
 app.include_router(profiling.router)
 app.include_router(cleaning.router)
 app.include_router(query.router)
 
+
 @app.get("/")
 async def read_root():
-    return {"message": "OmniBrain API is running", "status": "success"}
+    return {
+        "message": "OmniBrain API is running",
+        "status": "success"
+    }
+
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy"
+    }

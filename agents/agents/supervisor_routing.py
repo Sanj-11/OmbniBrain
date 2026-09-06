@@ -35,14 +35,16 @@ def route_question(question: str) -> AgentType:
         "employee",
         "employees",
     ]
+    # Count matching keywords for each agent
+    python_score = sum(keyword in question for keyword in python_keywords)
+    sql_score = sum(keyword in question for keyword in sql_keywords)
 
-    # Route calculation and analysis questions to the Python Agent
-    if any(keyword in question for keyword in python_keywords):
+    # Route to the agent with the higher matching score
+    if python_score > sql_score:
         return "python"
 
-    # Route database-related questions to the SQL Agent
-    if any(keyword in question for keyword in sql_keywords):
+    if sql_score > python_score:
         return "sql"
 
-    # Use Python Agent as the default when the question is not clearly identified
+    # Use Python Agent when there is no clear winner
     return "python"

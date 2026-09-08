@@ -36,8 +36,9 @@ def route_question(question: str) -> AgentType:
         "employees",
     ]
     # Count matching keywords for each agent
-    python_score = sum(keyword in question for keyword in python_keywords)
-    sql_score = sum(keyword in question for keyword in sql_keywords)
+    question_lower = question.lower()
+    python_score = sum(keyword in question_lower for keyword in python_keywords)
+    sql_score = sum(keyword in question_lower for keyword in sql_keywords)
 
     # Route to the agent with the higher matching score
     if python_score > sql_score:

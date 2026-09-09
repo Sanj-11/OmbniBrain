@@ -1,6 +1,8 @@
 import requests
 import streamlit as st
 
+from guardrails import validate_query, check_safety, validate_response
+
 # ---------------------------------------------------------
 # Page Configuration
 # ---------------------------------------------------------
@@ -138,6 +140,17 @@ else:
         if not prompt:
             st.warning("Please enter a question.")
         else:
+            # Stop invalid or unsafe prompts before they reach FastAPI.
+            is_valid, validation_message = validate_query(prompt)
+            if not is_valid:
+                st.error(validation_message)
+                st.stop()
+
+            is_safe, safety_message = check_safety(prompt)
+            if not is_safe:
+                st.error(safety_message)
+                st.stop()
+
             dataset_id = None
             if dataset_id_text.strip():
                 try:
@@ -165,8 +178,15 @@ else:
                     st.error(error)
                     assistant_text = f"**Error:** {error}"
                 else:
-                    assistant_text = result.get("answer", "No answer returned by the API.")
-                    st.markdown(assistant_text)
+                    assistant_text = str(result.get("answer", ""))
+                    output_valid, output_message = validate_response(assistant_text)
+
+                    if not output_valid:
+                        assistant_text = f"**Error:** {output_message}"
+                        st.error(output_message)
+                    else:
+                        assistant_text = output_message
+                        st.markdown(assistant_text)
 
                     metadata = []
                     if result.get("dataset_id") is not None:

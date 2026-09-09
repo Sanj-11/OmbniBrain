@@ -19,3 +19,9 @@ __pycache__/
 # Generated FAISS vector store
 data/faiss.index
 data/faiss_metadata.json
+
+# Week 3 generated FAISS data
+data/faiss/
+
+# Local backup files
+datasets_week2_backup.py

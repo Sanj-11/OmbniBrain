@@ -1,24 +1,46 @@
+
 from fastapi import FastAPI
-from pydantic import BaseModel
+from database import engine
+from config import settings
 
-# Define response models for better type hinting and documentation
-class RootResponse(BaseModel):
-    message: str
-    status: str
+import models
+import auth
+import datasets
+import profiling
+import cleaning
+import query
 
-class HealthResponse(BaseModel):
-    status: str
+# Create database tables
+models.Base.metadata.create_all(bind=engine)
 
-# Create the FastAPI application instance
+# Ensure upload directory exists
+settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Create FastAPI application
 app = FastAPI(
     title="OmniBrain API",
     version="1.0.0",
+    description="API for InsightIQ AI – Conversational BI & Predictive Analytics Platform"
 )
 
-@app.get("/", response_model=RootResponse)
-async def read_root():
-    return {"message": "OmniBrain API is running", "status": "success"}
+# Register routers
+app.include_router(auth.router)
+app.include_router(datasets.router)
+app.include_router(profiling.router)
+app.include_router(cleaning.router)
+app.include_router(query.router)
 
-@app.get("/health", response_model=HealthResponse)
+
+@app.get("/")
+async def read_root():
+    return {
+        "message": "OmniBrain API is running",
+        "status": "success"
+    }
+
+
+@app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy"
+    }
